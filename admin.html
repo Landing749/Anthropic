@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASD Admin Portal — Division Council</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,700;0,800;1,400&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #F2EEE5;
+      --bg-card: #E8E3D8;
+      --ink:     #0D0D0A;
+      --ink-2:   #1A1916;
+      --ink-3:   #6B6658;
+      --ink-4:   #9A9486;
+      --border:  rgba(13,13,10,0.1);
+      --dark:    #111110;
+      --dark-2:  #1C1C1A;
+      --sans:    'Plus Jakarta Sans', system-ui, sans-serif;
+      --serif:   'Lora', Georgia, serif;
+      --radius:  12px;
+      --green:   #2A7A4B;
+      --green-bg:#E8F5EE;
+      --red:     #8B2020;
+      --red-bg:  #F5E8E8;
+      --amber:   #8B6020;
+      --amber-bg:#F5F0E8;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 400;
+      line-height: 1.55;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ─── LOGIN SCREEN ─── */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    #loginScreen.hidden { display: none; }
+
+    .login-box {
+      background: var(--dark-2);
+      border: 1px solid rgba(242,238,229,0.1);
+      border-radius: var(--radius);
+      padding: 52px 48px;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .login-brand .wordmark {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(242,238,229,0.9);
+    }
+
+    .login-brand .sub {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(242,238,229,0.35);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .login-divider {
+      height: 1px;
+      background: rgba(242,238,229,0.08);
+    }
+
+    .login-title {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 400;
+      color: rgba(242,238,229,0.9);
+      line-height: 1.2;
+    }
+
+    .login-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .login-field label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(242,238,229,0.4);
+    }
+
+    .login-field input {
+      background: rgba(242,238,229,0.05);
+      border: 1px solid rgba(242,238,229,0.12);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: var(--sans);
+      font-size: 15px;
+      color: rgba(242,238,229,0.9);
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .login-field input:focus {
+      border-color: rgba(242,238,229,0.35);
+    }
+
+    .login-btn {
+      background: rgba(242,238,229,0.9);
+      color: var(--dark);
+      border: none;
+      border-radius: 9999px;
+      padding: 12px 24px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .login-btn:hover { opacity: 0.85; }
+
+    .login-error {
+      font-size: 13px;
+      color: #e57575;
+      display: none;
+      text-align: center;
+    }
+    .login-error.visible { display: block; }
+
+    .login-clearance {
+      font-size: 11px;
+      color: rgba(242,238,229,0.2);
+      text-align: center;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ─── ADMIN LAYOUT ─── */
+    #adminApp {
+      display: none;
+      min-height: 100vh;
+    }
+    #adminApp.visible { display: block; }
+
+    /* Top nav */
+    .admin-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 60px;
+    }
+
+    .admin-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .admin-nav-wordmark {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .admin-nav-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+    }
+
+    .admin-nav-sub {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-3);
+      letter-spacing: 0.04em;
+    }
+
+    .admin-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .admin-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-3);
+      background: var(--bg-card);
+      padding: 5px 14px;
+      border-radius: 9999px;
+    }
+
+    .status-dot-live {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4CAF79;
+      animation: pulse 3s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .logout-btn {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-3);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .logout-btn:hover { color: var(--ink); border-color: rgba(13,13,10,0.3); }
+
+    /* ─── MAIN CONTENT ─── */
+    .admin-main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+
+    /* Summary stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      line-height: 1;
+      margin-top: 4px;
+    }
+
+    .stat-value.pending { color: #8B6020; }
+    .stat-value.approved { color: #2A7A4B; }
+    .stat-value.rejected { color: #8B2020; }
+
+    /* Filter toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-3);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 7px 18px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { background: var(--bg-card); color: var(--ink); }
+    .filter-btn.active {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap input {
+      background: var(--bg-card);
+      border: 1px solid transparent;
+      border-radius: 9999px;
+      padding: 8px 16px 8px 36px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--ink);
+      outline: none;
+      width: 220px;
+      transition: border-color 0.15s;
+    }
+
+    .search-wrap input:focus {
+      border-color: rgba(13,13,10,0.2);
+    }
+
+    .search-wrap::before {
+      content: '⌕';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--ink-4);
+      pointer-events: none;
+    }
+
+    /* Applications table */
+    .apps-table-wrap {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .apps-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .apps-table thead th {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .apps-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+    .apps-table tbody tr:last-child { border-bottom: none; }
+    .apps-table tbody tr:hover { background: rgba(13,13,10,0.03); }
+
+    .apps-table td {
+      padding: 16px 20px;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .td-username {
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .td-case {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-4);
+      font-family: monospace;
+      letter-spacing: 0.04em;
+    }
+
+    .td-specialty {
+      color: var(--ink-2);
+      font-size: 13px;
+    }
+
+    .td-activity {
+      color: var(--ink-3);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .td-date {
+      color: var(--ink-4);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .status-badge.pending {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .status-badge.approved {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .status-badge.rejected {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .status-dot-sm {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ─── DETAIL DRAWER ─── */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(13,13,10,0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+    .drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      z-index: 501;
+      width: 480px;
+      max-width: 95vw;
+      background: var(--bg);
+      box-shadow: -8px 0 40px rgba(13,13,10,0.15);
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.open { transform: none; }
+
+    .drawer-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 1;
+    }
+
+    .drawer-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .drawer-case {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      font-family: monospace;
+    }
+
+    .drawer-username {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .drawer-close {
+      background: var(--bg-card);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--ink-3);
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .drawer-close:hover { background: #DFD9CC; color: var(--ink); }
+
+    .drawer-body {
+      padding: 24px 28px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .drawer-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .drawer-field-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+    }
+
+    .drawer-field-value {
+      font-size: 15px;
+      color: var(--ink-2);
+      line-height: 1.6;
+    }
+
+    .drawer-motivation {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-size: 14px;
+      color: var(--ink-2);
+      line-height: 1.7;
+      font-family: var(--serif);
+      font-style: italic;
+    }
+
+    .drawer-divider {
+      height: 1px;
+      background: var(--border);
+    }
+
+    .drawer-footer {
+      padding: 20px 28px;
+      border-top: 1px solid var(--border);
+      position: sticky;
+      bottom: 0;
+      background: var(--bg);
+    }
+
+    .drawer-actions-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      margin-bottom: 12px;
+    }
+
+    .drawer-action-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 9999px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .action-btn:hover { opacity: 0.82; }
+    .action-btn:active { transform: scale(0.97); }
+
+    .action-btn.approve {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .action-btn.reject {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .action-btn.pending-btn {
+      background: var(--bg-card);
+      color: var(--ink-2);
+      border: 1px solid var(--border);
+    }
+
+    /* Empty/loading states */
+    .empty-state {
+      padding: 72px 32px;
+      text-align: center;
+      color: var(--ink-4);
+    }
+    .empty-state p { font-size: 15px; margin-top: 8px; }
+
+    .loading-state {
+      padding: 72px 32px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--ink);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 11px 24px;
+      border-radius: 9999px;
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
+      z-index: 9000;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Section title */
+    .section-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .section-count {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-4);
+    }
+
+    /* Classification banner */
+    .classification-banner {
+      background: var(--dark);
+      color: rgba(242,238,229,0.4);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px;
+    }
+
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .admin-nav { padding: 0 20px; }
+      .admin-main { padding: 28px 20px 60px; }
+      .apps-table thead th:nth-child(n+4) { display: none; }
+      .apps-table td:nth-child(n+4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── LOGIN SCREEN ─── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="wordmark">ANTHROPIC</div>
+      <div class="sub">Systems Division — Admin Portal</div>
+    </div>
+    <div class="login-divider"></div>
+    <div class="login-title">Division Council<br>Access</div>
+    <div class="login-field">
+      <label>Clearance Password</label>
+      <input type="password" id="loginPass" placeholder="Enter access code" autocomplete="off" />
+    </div>
+    <div class="login-error" id="loginError">Invalid credentials. Access denied.</div>
+    <button class="login-btn" onclick="handleLogin()">Authenticate →</button>
+    <div class="login-clearance">Tier-V Restricted // ASD Internal Use Only</div>
+  </div>
+</div>
+
+<!-- ─── ADMIN APP ─── -->
+<div id="adminApp">
+  <div class="classification-banner">ASD — MTI // CLEARANCE: V — ADMIN PORTAL — RESTRICTED ACCESS</div>
+
+  <nav class="admin-nav">
+    <a href="index.html" class="admin-nav-left">
+      <span class="admin-nav-wordmark">ANTHROPIC</span>
+      <div class="admin-nav-divider"></div>
+      <span class="admin-nav-sub">Systems Division</span>
+    </a>
+    <div class="admin-nav-right">
+      <div class="admin-status-pill">
+        <span class="status-dot-live"></span>
+        Firebase Live
+      </div>
+      <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Applications</div>
+        <div class="stat-value" id="statTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value pending" id="statPending">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value approved" id="statApproved">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value rejected" id="statRejected">—</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="section-title-row">
+      <div class="section-title">Applications</div>
+      <div class="section-count" id="visibleCount"></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">All</button>
+        <button class="filter-btn" data-filter="pending" onclick="setFilter(this,'pending')">Pending</button>
+        <button class="filter-btn" data-filter="approved" onclick="setFilter(this,'approved')">Approved</button>
+        <button class="filter-btn" data-filter="rejected" onclick="setFilter(this,'rejected')">Rejected</button>
+      </div>
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search username…" oninput="renderTable()" />
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="apps-table-wrap" id="tableWrap">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+  </main>
+</div>
+
+<!-- ─── DETAIL DRAWER ─── -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title-group">
+      <div class="drawer-case" id="drawerCase">—</div>
+      <div class="drawer-username" id="drawerUsername">—</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-field">
+      <div class="drawer-field-label">Status</div>
+      <div id="drawerStatus">—</div>
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-field">
+      <div class="drawer-field-label">Primary Specialty</div>
+      <div class="drawer-field-value" id="drawerSpecialty">—</div>
+    </div>
+    <div class="drawer-field">
+      <div class="drawer-field-label">Activity Level</div>
+      <div class="drawer-field-value" id="drawerActivity">—</div>
+    </div>
+    <div class="drawer-field">
+      <div class="drawer-field-label">Previous Affiliations</div>
+      <div class="drawer-field-value" id="drawerAffiliations">—</div>
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-field">
+      <div class="drawer-field-label">Why Anthropic?</div>
+      <div class="drawer-motivation" id="drawerMotivation">—</div>
+    </div>
+    <div class="drawer-field">
+      <div class="drawer-field-label">Submitted</div>
+      <div class="drawer-field-value" id="drawerDate">—</div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <div class="drawer-actions-label">Change Status</div>
+    <div class="drawer-action-btns">
+      <button class="action-btn approve" onclick="updateStatus('approved')">✓ Approve</button>
+      <button class="action-btn reject" onclick="updateStatus('rejected')">✕ Reject</button>
+      <button class="action-btn pending-btn" onclick="updateStatus('pending')">↺ Pending</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getDatabase, ref, onValue, update
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const ADMIN_PASSWORD = "ASD-COUNCIL-V";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyD90g_6fQ4GrqvTTuBxo42HTyJJs8Z2dMA",
+    authDomain: "anthropic-35f71.firebaseapp.com",
+    projectId: "anthropic-35f71",
+    storageBucket: "anthropic-35f71.firebasestorage.app",
+    messagingSenderId: "881565113534",
+    appId: "1:881565113534:web:c500da0365433966ce52ef",
+    databaseURL: "https://anthropic-35f71-default-rtdb.firebaseio.com"
+  });
+  const db = getDatabase(app);
+
+  let allApps = [];
+  let currentFilter = 'all';
+  let activeId = null;
+
+  // ── Auth ──
+  window.handleLogin = () => {
+    const val = document.getElementById('loginPass').value;
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('adminApp').classList.add('visible');
+      loadApplications();
+    } else {
+      document.getElementById('loginError').classList.add('visible');
+      document.getElementById('loginPass').value = '';
+    }
+  };
+
+  document.getElementById('loginPass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.handleLogin();
+  });
+
+  window.handleLogout = () => {
+    document.getElementById('adminApp').classList.remove('visible');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('loginPass').value = '';
+  };
+
+  // ── Load Data ──
+  function loadApplications() {
+    const appsRef = ref(db, 'applications');
+    onValue(appsRef, snapshot => {
+      const data = snapshot.val() || {};
+      allApps = Object.entries(data).map(([id, val]) => ({
+        id,
+        caseId: 'ASD-' + id.slice(-4).toUpperCase(),
+        ...val
+      }));
+      allApps.sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+      updateStats();
+      renderTable();
+    });
+  }
+
+  function updateStats() {
+    const total = allApps.length;
+    const pending = allApps.filter(a => a.status === 'pending').length;
+    const approved = allApps.filter(a => a.status === 'approved').length;
+    const rejected = allApps.filter(a => a.status === 'rejected').length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statRejected').textContent = rejected;
+  }
+
+  window.renderTable = () => {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = allApps.filter(a => {
+      const matchFilter = currentFilter === 'all' || a.status === currentFilter;
+      const matchSearch = !search || a.username?.toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    document.getElementById('visibleCount').textContent =
+      filtered.length + ' application' + (filtered.length !== 1 ? 's' : '');
+
+    const wrap = document.getElementById('tableWrap');
+    if (!allApps.length) {
+      wrap.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
+      return;
+    }
+    if (!filtered.length) {
+      wrap.innerHTML = `<div class="empty-state"><div>No applications found.</div><p>Try a different filter or search term.</p></div>`;
+      return;
+    }
+
+    const rows = filtered.map(a => {
+      const date = a.submittedAt
+        ? new Date(a.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : 'Unknown';
+      const statusHTML = `<span class="status-badge ${a.status || 'pending'}"><span class="status-dot-sm"></span>${capitalize(a.status || 'pending')}</span>`;
+      return `<tr onclick="openDrawer('${a.id}')">
+        <td><div class="td-username">${esc(a.username || '—')}</div></td>
+        <td><div class="td-case">${esc(a.caseId)}</div></td>
+        <td><div class="td-specialty">${esc(a.specialty || '—')}</div></td>
+        <td><div class="td-activity">${esc(a.activity || '—')}</div></td>
+        <td>${statusHTML}</td>
+        <td><div class="td-date">${date}</div></td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <table class="apps-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Case ID</th>
+            <th>Specialty</th>
+            <th>Activity</th>
+            <th>Status</th>
+            <th>Submitted</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  };
+
+  window.setFilter = (btn, filter) => {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+  };
+
+  // ── Drawer ──
+  window.openDrawer = (id) => {
+    const a = allApps.find(x => x.id === id);
+    if (!a) return;
+    activeId = id;
+
+    document.getElementById('drawerCase').textContent = a.caseId;
+    document.getElementById('drawerUsername').textContent = a.username || '—';
+    document.getElementById('drawerSpecialty').textContent = a.specialty || '—';
+    document.getElementById('drawerActivity').textContent = a.activity || '—';
+    document.getElementById('drawerAffiliations').textContent = a.affiliations || 'None';
+    document.getElementById('drawerMotivation').textContent = a.motivation || '—';
+    document.getElementById('drawerStatus').innerHTML =
+      `<span class="status-badge ${a.status || 'pending'}"><span class="status-dot-sm"></span>${capitalize(a.status || 'pending')}</span>`;
+
+    const date = a.submittedAt
+      ? new Date(a.submittedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+      : 'Unknown';
+    document.getElementById('drawerDate').textContent = date;
+
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('open');
+  };
+
+  window.closeDrawer = () => {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('open');
+    activeId = null;
+  };
+
+  window.updateStatus = async (newStatus) => {
+    if (!activeId) return;
+    try {
+      await update(ref(db, `applications/${activeId}`), { status: newStatus });
+      showToast(`Status updated → ${capitalize(newStatus)}`);
+      // Refresh drawer status badge
+      const a = allApps.find(x => x.id === activeId);
+      if (a) {
+        a.status = newStatus;
+        document.getElementById('drawerStatus').innerHTML =
+          `<span class="status-badge ${newStatus}"><span class="status-dot-sm"></span>${capitalize(newStatus)}</span>`;
+      }
+    } catch (err) {
+      showToast('Update failed. Check permissions.');
+    }
+  };
+
+  // ── Utils ──
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  window._showToast = showToast;
+</script>
+</body>
+</html>
